@@ -3,9 +3,9 @@
 using namespace std;
 //config consts
 const unsigned char MOVER_CH[4] = {'^','>','v','<'};
-const unsigned char STATIC_CH = '@';
-const unsigned char ENEMY_CH = '&';
-const unsigned char ROTATOR_CH[2] = {'/','\\'};
+const unsigned char STATIC_CH = 178;
+const unsigned char ENEMY_CH = 234;
+const unsigned char ROTATOR_CH[2] = {149,162};
 const char CLONER_CH[4] = {30,16,31,17};
 const unsigned char PUSHABLE_CH = '#';
 const unsigned char UNIDIRECTIONAL_CH[2] = {186,205};
@@ -47,7 +47,7 @@ int main(){
     init(field,rows,cols);
     for(int r = 0; r < rows; r++){
         for(int c = 0; c < cols; c++){
-            cout << field[r][c] << ' ';
+            cout << field[r][c];
         }
         cout << '\n';
     }
@@ -58,10 +58,3 @@ int main(){
     field = nullptr; 
     cin >> rows;
 }
-
-
-
-
-
-
-

@@ -1,14 +1,20 @@
 //g++ main.cpp -o main.exe -std=c++11 && start main.exe
-#include <iostream>
+#include "colors.cpp"
 using namespace std;
 //config consts
 const unsigned char MOVER_CH[4] = {'^','>','v','<'};
+const COLORS MOVER_COL = BLUE;
 const unsigned char STATIC_CH = 178;
+const COLORS STATIC_COL = LIGHT_GREY;
 const unsigned char ENEMY_CH = 234;
+const COLORS ENEMY_COL = RED;
 const unsigned char ROTATOR_CH[2] = {149,162};
-const char CLONER_CH[4] = {30,16,31,17};
+const COLORS ROTATOR_COL = BROWN;
+const unsigned char CLONER_CH[4] = {30,16,31,17};
+const COLORS CLONER_COL = GREEN;
 const unsigned char PUSHABLE_CH = '#';
 const unsigned char UNIDIRECTIONAL_CH[2] = {186,205};
+const COLORS PUSHABLE_COL = YELLOW;
 const unsigned char EMPTY_CH = '.';
 void init(char** field,int rows, int cols){
     for(int r = 0; r < rows; r++){
@@ -37,6 +43,33 @@ void init(char** field,int rows, int cols){
     field[1][14] = CLONER_CH[2];
     field[1][15] = CLONER_CH[3];
 }
+COLORS getColorAt(char** field,int r, int c){
+    if(field[r][c] == MOVER_CH[0]){return MOVER_COL;}
+    if(field[r][c] == MOVER_CH[1]){return MOVER_COL;}
+    if(field[r][c] == MOVER_CH[2]){return MOVER_COL;}
+    if(field[r][c] == MOVER_CH[3]){return MOVER_COL;}
+    if(field[r][c] == STATIC_CH){return STATIC_COL;}
+    if(field[r][c] == ENEMY_CH){return ENEMY_COL;}
+    if(field[r][c] == ROTATOR_CH[0]){return ROTATOR_COL;}
+    if(field[r][c] == ROTATOR_CH[1]){return ROTATOR_COL;}
+    if(field[r][c] == PUSHABLE_CH){return PUSHABLE_COL;}
+    if(field[r][c] == UNIDIRECTIONAL_CH[0]){return PUSHABLE_COL;}
+    if(field[r][c] == UNIDIRECTIONAL_CH[0]){return PUSHABLE_COL;}
+    if(field[r][c] == CLONER_CH[0]){return CLONER_COL;}
+    if(field[r][c] == CLONER_CH[1]){return CLONER_COL;}
+    if(field[r][c] == CLONER_CH[2]){return CLONER_COL;}
+    if(field[r][c] == CLONER_CH[3]){return CLONER_COL;}
+    return BKG_COL;
+}
+void printField(char** field,int rows, int cols){
+    COLORS col;
+    for(int r = 0; r < rows; r++){
+        for(int c = 0; c < cols; c++){
+            col = getColorAt(field,r,c);
+            draw_char(field[r][c],r,c,BKG_COL,col);
+        }
+    }
+}
 int main(){
     int rows = 40;
     int cols = 50;
@@ -44,13 +77,10 @@ int main(){
     for (int r = 0; r < rows; r++) {
         field[r] = new char[cols];
     }
+    //
     init(field,rows,cols);
-    for(int r = 0; r < rows; r++){
-        for(int c = 0; c < cols; c++){
-            cout << field[r][c];
-        }
-        cout << '\n';
-    }
+    printField(field,rows,cols);
+    //
     for (int r = 0; r < rows; r++) {
         delete field[r];
     }

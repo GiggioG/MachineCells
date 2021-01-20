@@ -1,7 +1,8 @@
 @echo off
-echo VVVVVVVVVV-BUILD-LOG-VVVVVVVVVV
+cls
+echo vvvvvvvvvv-BUILD-LOG-vvvvvvvvvv
 g++ main.cpp -o main.exe -std=c++11
-echo AAAAAAAAAA-BUILD-LOG-AAAAAAAAAA
+echo ^^^^^^^^^^^^^^^^^^^^-BUILD-LOG-^^^^^^^^^^^^^^^^^^^^
 echo COMPILATION ERRORLEVEL: %errorlevel%
 if %errorlevel% EQU 0 (
 echo COMPILATION COMPLETE: RUNNING main.exe

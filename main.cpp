@@ -16,7 +16,7 @@ const unsigned char PUSHABLE_CH = '#';
 const unsigned char UNIDIRECTIONAL_CH[2] = {186,205};
 const COLORS PUSHABLE_COL = YELLOW;
 const unsigned char EMPTY_CH = '.';
-void init(char** field,int rows, int cols){
+void init(uchar** field,int rows, int cols){
     for(int r = 0; r < rows; r++){
         for(int c = 0; c < cols; c++){
             if((r == 0 || r == rows-1) || (c == 0 || c == cols-1)){
@@ -43,7 +43,7 @@ void init(char** field,int rows, int cols){
     field[1][14] = CLONER_CH[2];
     field[1][15] = CLONER_CH[3];
 }
-COLORS getColorAt(char** field,int r, int c){
+COLORS getColorAt(uchar** field,int r, int c){
     if(field[r][c] == MOVER_CH[0]){return MOVER_COL;}
     if(field[r][c] == MOVER_CH[1]){return MOVER_COL;}
     if(field[r][c] == MOVER_CH[2]){return MOVER_COL;}
@@ -54,14 +54,14 @@ COLORS getColorAt(char** field,int r, int c){
     if(field[r][c] == ROTATOR_CH[1]){return ROTATOR_COL;}
     if(field[r][c] == PUSHABLE_CH){return PUSHABLE_COL;}
     if(field[r][c] == UNIDIRECTIONAL_CH[0]){return PUSHABLE_COL;}
-    if(field[r][c] == UNIDIRECTIONAL_CH[0]){return PUSHABLE_COL;}
+    if(field[r][c] == UNIDIRECTIONAL_CH[1]){return PUSHABLE_COL;}
     if(field[r][c] == CLONER_CH[0]){return CLONER_COL;}
     if(field[r][c] == CLONER_CH[1]){return CLONER_COL;}
     if(field[r][c] == CLONER_CH[2]){return CLONER_COL;}
     if(field[r][c] == CLONER_CH[3]){return CLONER_COL;}
     return BKG_COL;
 }
-void printField(char** field,int rows, int cols){
+void printField(uchar** field,int rows, int cols){
     COLORS col;
     for(int r = 0; r < rows; r++){
         for(int c = 0; c < cols; c++){
@@ -73,9 +73,9 @@ void printField(char** field,int rows, int cols){
 int main(){
     int rows = 40;
     int cols = 50;
-    char** field = new char*[rows];
+    uchar** field = new uchar*[rows];
     for (int r = 0; r < rows; r++) {
-        field[r] = new char[cols];
+        field[r] = new uchar[cols];
     }
     //
     init(field,rows,cols);

@@ -5,6 +5,7 @@
 #include <time.h>
 #include <cmath>
 #include <vector>
+#define uchar unsigned char
 using namespace std;
 
 const int MAP_ROWS=80;
@@ -37,7 +38,7 @@ enum COLORS {
 COLORS BKG_COL = BLACK;
 
 
-void draw_char(char ch, int y, int x, COLORS foreground_color, COLORS background_color) {
+void draw_char(uchar ch, int y, int x, COLORS foreground_color, COLORS background_color) {
     CHAR_INFO ch_info;
     ch_info.Char.AsciiChar = ch;
     ch_info.Attributes = foreground_color | (background_color << 4);

@@ -54,6 +54,14 @@ void init(Cell** field,int rows, int cols){
             }
         }
     }
+    int r,c,cl;
+    for(int i = 0; i < 30; i++){
+        r = 1+(rand()%(rows-2));
+        c = 1+(rand()%(cols-2));
+        cl = rand()%5;
+        if(cl==4){setCell(field[r][c],PUSHABLE_CH);}
+        else{setCell(field[r][c],MOVER_CH[cl]);}
+    }
 }
 void printField(Cell** field,int rows, int cols){
     for(int r = 0; r < rows; r++){
@@ -106,7 +114,6 @@ void stepThroughTime(Cell** field,int rows, int cols){
                 if(cellchar == MOVER_CH[2]){d = 2;}
                 if(cellchar == MOVER_CH[3]){d = 3;}
                 field[r+diffr[d]][c+diffc[d]].touched = push(field,r,c,d);
-                printField(field,rows,cols);
             }
         }
     }
@@ -125,11 +132,8 @@ int main(){
     init(field,rows,cols);
     printField(field,rows,cols);
     while(true){
-        if(GetAsyncKeyState(VK_SPACE)){
-            printField(field,rows,cols);
-            stepThroughTime(field, rows, cols);
-        }
-        //Sleep(1);
+        printField(field,rows,cols);
+        stepThroughTime(field, rows, cols);
     }
     //
     for (int r = 0; r < rows; r++) {

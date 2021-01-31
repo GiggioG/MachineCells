@@ -58,9 +58,14 @@ void init(Cell** field,int rows, int cols){
     for(int i = 0; i < 30; i++){
         r = 1+(rand()%(rows-2));
         c = 1+(rand()%(cols-2));
-        cl = rand()%5;
-        if(cl==4){setCell(field[r][c],PUSHABLE_CH);}
-        else{setCell(field[r][c],MOVER_CH[cl]);}
+        cl = rand()%15;
+        if(cl < 4){setCell(field[r][c],MOVER_CH[cl]);continue;}
+        if(cl >= 4 && cl < 8){setCell(field[r][c],CLONER_CH[cl-4]);continue;}
+        if(cl >= 8 && cl < 10){setCell(field[r][c],ROTATOR_CH[cl-8]);continue;}
+        if(cl >= 10 && cl < 12){setCell(field[r][c],UNIDIRECTIONAL_CH[cl-10]);continue;}
+        if(cl == 12){setCell(field[r][c],PUSHABLE_CH);continue;}
+        if(cl == 13){setCell(field[r][c],STATIC_CH);continue;}
+        if(cl == 14){setCell(field[r][c],ENEMY_CH);continue;}
     }
 }
 void printField(Cell** field,int rows, int cols){
@@ -115,10 +120,22 @@ void stepThroughTime(Cell** field,int rows, int cols){
                 if(cellchar == MOVER_CH[3]){d = 3;}
                 field[r+diffr[d]][c+diffc[d]].touched = push(field,r,c,d);
             }
+            if((cellchar == CLONER_CH[0]) || (cellchar == CLONER_CH[1]) || (cellchar == CLONER_CH[2]) || (cellchar == CLONER_CH[3])){
+                if(cellchar == CLONER_CH[0]){d = 0;}
+                if(cellchar == CLONER_CH[1]){d = 1;}
+                if(cellchar == CLONER_CH[2]){d = 2;}
+                if(cellchar == CLONER_CH[3]){d = 3;}
+                if(field[r-diffr[d]][c-diffc[d]].ch == EMPTY_CH){continue;}
+                field[r][c].touched = push(field,r+diffr[d],c+diffc[d],d);
+                if(field[r][c].touched){
+                    setCell(field[r+diffr[d]][c+diffc[d]], field[r-diffr[d]][c-diffc[d]].ch);
+                }
+            }
         }
     }
 }
 int main(){
+    srand(time(0));
     for(int i = 0; i < 42; i++){
         cout << '\n';
     }

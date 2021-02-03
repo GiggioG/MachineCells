@@ -17,6 +17,8 @@ const unsigned char UNIDIRECTIONAL_CH[2] = {186,205};
 const COLORS PUSHABLE_COL = YELLOW;
 const unsigned char EMPTY_CH = '.';
 //
+int br_enemies=0;
+vector<string> levelData;
 struct Cell{
     uchar ch = EMPTY_CH;
     COLORS col = BKG_COL;
@@ -46,28 +48,6 @@ void setCell(Cell& cell, uchar ch){
     cell.ch = ch;
     cell.col = getColor(ch);
 }
-void init(Cell** field,int rows, int cols){
-    for(int r = 0; r < rows; r++){
-        for(int c = 0; c < cols; c++){
-            if((r == 0 || r == rows-1) || (c == 0 || c == cols-1)){
-                setCell(field[r][c],STATIC_CH);
-            }
-        }
-    }
-    int r,c,cl;
-    for(int i = 0; i < 30; i++){
-        r = 1+(rand()%(rows-2));
-        c = 1+(rand()%(cols-2));
-        cl = rand()%15;
-        if(cl < 4){setCell(field[r][c],MOVER_CH[cl]);continue;}
-        if(cl >= 4 && cl < 8){setCell(field[r][c],CLONER_CH[cl-4]);continue;}
-        if(cl >= 8 && cl < 10){setCell(field[r][c],ROTATOR_CH[cl-8]);continue;}
-        if(cl >= 10 && cl < 12){setCell(field[r][c],UNIDIRECTIONAL_CH[cl-10]);continue;}
-        if(cl == 12){setCell(field[r][c],PUSHABLE_CH);continue;}
-        if(cl == 13){setCell(field[r][c],STATIC_CH);continue;}
-        if(cl == 14){setCell(field[r][c],ENEMY_CH);continue;}
-    }
-}
 void printField(Cell** field,int rows, int cols){
     for(int r = 0; r < rows; r++){
         for(int c = 0; c < cols; c++){
@@ -80,6 +60,12 @@ bool push(Cell** field, int r, int c, int d){
     uchar cellchar = field[r][c].ch;
     if(cellchar == STATIC_CH){return false;}
     if(cellchar == EMPTY_CH){return true;}
+    if(field[newr][newc].ch == ENEMY_CH){
+        setCell(field[newr][newc],EMPTY_CH);
+        setCell(field[r][c],EMPTY_CH);
+        br_enemies--;
+        return true;
+    }
     if(
         (cellchar == PUSHABLE_CH) ||
         ((cellchar == MOVER_CH[0]) && (field[newr][newc].ch != MOVER_CH[2])) ||
@@ -87,7 +73,8 @@ bool push(Cell** field, int r, int c, int d){
         ((cellchar == MOVER_CH[2]) && (field[newr][newc].ch != MOVER_CH[0])) ||
         ((cellchar == MOVER_CH[3]) && (field[newr][newc].ch != MOVER_CH[1])) ||
         (cellchar == CLONER_CH[0]) || (cellchar == CLONER_CH[1]) ||
-        (cellchar == CLONER_CH[2]) || (cellchar == CLONER_CH[0])
+        (cellchar == CLONER_CH[2]) || (cellchar == CLONER_CH[0]) ||
+        (cellchar == ROTATOR_CH[0]) || (cellchar == ROTATOR_CH[1])
     ){
         if(!push(field,newr,newc,d)){return false;}
         setCell(field[newr][newc],cellchar);
@@ -95,6 +82,14 @@ bool push(Cell** field, int r, int c, int d){
         setCell(field[r][c],EMPTY_CH);
         // field[r][c].touched = false;
         //cout << "moved " << cellchar << " from " << r << ',' << c << " to " << newr << ',' << newc << '\n';
+        return true;
+    }
+    if((cellchar == UNIDIRECTIONAL_CH[0]) || (cellchar == UNIDIRECTIONAL_CH[1])){
+        if(((d == 0) || (d == 2)) && (cellchar == UNIDIRECTIONAL_CH[0])){return false;}
+        if(((d == 1) || (d == 3)) && (cellchar == UNIDIRECTIONAL_CH[1])){return false;}
+        if(!push(field,newr,newc,d)){return false;}
+        setCell(field[newr][newc],cellchar);
+        setCell(field[r][c],EMPTY_CH);
         return true;
     }
     return false;
@@ -131,32 +126,109 @@ void stepThroughTime(Cell** field,int rows, int cols){
                     setCell(field[r+diffr[d]][c+diffc[d]], field[r-diffr[d]][c-diffc[d]].ch);
                 }
             }
+            if((cellchar == ROTATOR_CH[0]) || (cellchar == ROTATOR_CH[1])){
+                field[r][c].touched = true;
+                for(int i = -1; i <= 1; i++){
+                    for(int j = -1; j <= 1; j++){
+                        if((i==0) != (j==0)){
+                            if(cellchar == ROTATOR_CH[0]){
+                                if(field[r+i][c+j].ch == MOVER_CH[0]){setCell(field[r+i][c+j], MOVER_CH[1]);}
+                                else if(field[r+i][c+j].ch == MOVER_CH[1]){setCell(field[r+i][c+j], MOVER_CH[2]);}
+                                else if(field[r+i][c+j].ch == MOVER_CH[2]){setCell(field[r+i][c+j], MOVER_CH[3]);}
+                                else if(field[r+i][c+j].ch == MOVER_CH[3]){setCell(field[r+i][c+j], MOVER_CH[0]);}
+                                else if(field[r+i][c+j].ch == CLONER_CH[0]){setCell(field[r+i][c+j], CLONER_CH[1]);}
+                                else if(field[r+i][c+j].ch == CLONER_CH[1]){setCell(field[r+i][c+j], CLONER_CH[2]);}
+                                else if(field[r+i][c+j].ch == CLONER_CH[2]){setCell(field[r+i][c+j], CLONER_CH[3]);}
+                                else if(field[r+i][c+j].ch == CLONER_CH[3]){setCell(field[r+i][c+j], CLONER_CH[0]);}
+                                else if(field[r+i][c+j].ch == UNIDIRECTIONAL_CH[0]){setCell(field[r+i][c+j], UNIDIRECTIONAL_CH[1]);}
+                                else if(field[r+i][c+j].ch == UNIDIRECTIONAL_CH[1]){setCell(field[r+i][c+j], UNIDIRECTIONAL_CH[0]);}
+                            }
+                            if(cellchar == ROTATOR_CH[1]){
+                                if(field[r+i][c+j].ch == MOVER_CH[0]){setCell(field[r+i][c+j], MOVER_CH[3]);}
+                                else if(field[r+i][c+j].ch == MOVER_CH[1]){setCell(field[r+i][c+j], MOVER_CH[0]);}
+                                else if(field[r+i][c+j].ch == MOVER_CH[2]){setCell(field[r+i][c+j], MOVER_CH[1]);}
+                                else if(field[r+i][c+j].ch == MOVER_CH[3]){setCell(field[r+i][c+j], MOVER_CH[2]);}
+                                else if(field[r+i][c+j].ch == CLONER_CH[0]){setCell(field[r+i][c+j], CLONER_CH[3]);}
+                                else if(field[r+i][c+j].ch == CLONER_CH[1]){setCell(field[r+i][c+j], CLONER_CH[0]);}
+                                else if(field[r+i][c+j].ch == CLONER_CH[2]){setCell(field[r+i][c+j], CLONER_CH[1]);}
+                                else if(field[r+i][c+j].ch == CLONER_CH[3]){setCell(field[r+i][c+j], CLONER_CH[2]);}
+                                else if(field[r+i][c+j].ch == UNIDIRECTIONAL_CH[0]){setCell(field[r+i][c+j], UNIDIRECTIONAL_CH[1]);}
+                                else if(field[r+i][c+j].ch == UNIDIRECTIONAL_CH[1]){setCell(field[r+i][c+j], UNIDIRECTIONAL_CH[0]);}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+void readFromFile(vector<string>& levelData, string path){
+    string tmp;
+    ifstream in_f(path);
+    while (getline (in_f, tmp)) {
+        levelData.push_back(tmp);
+    }
+    in_f.close();
+}
+void initLevelFromData(Cell** field, int rows, int cols, vector<string>& levelData){
+    for(int r = 0; r < rows; r++){
+        for(int c = 0; c < cols; c++){
+            if((r == 0 || r == rows-1) || (c == 0 || c == cols-1)){
+                setCell(field[r][c],STATIC_CH);
+            }
+        }
+    }
+    for(int r = 0; r < rows-2; r++){
+        for(int c = 0; c < cols-2; c++){
+            switch(levelData[r+2][c]){
+                case '^':setCell(field[r+1][c+1],MOVER_CH[0]);break;
+                case '>':setCell(field[r+1][c+1],MOVER_CH[1]);break;
+                case 'v':setCell(field[r+1][c+1],MOVER_CH[2]);break;
+                case '<':setCell(field[r+1][c+1],MOVER_CH[3]);break;
+                case '%':setCell(field[r+1][c+1],STATIC_CH);break;
+                case 'Q':setCell(field[r+1][c+1],ENEMY_CH);br_enemies++;break;
+                case 'p':setCell(field[r+1][c+1],ROTATOR_CH[0]);break;
+                case 'q':setCell(field[r+1][c+1],ROTATOR_CH[1]);break;
+                case 'M':setCell(field[r+1][c+1],CLONER_CH[0]);break;
+                case '}':setCell(field[r+1][c+1],CLONER_CH[1]);break;
+                case 'W':setCell(field[r+1][c+1],CLONER_CH[2]);break;
+                case '{':setCell(field[r+1][c+1],CLONER_CH[3]);break;
+                case '#':setCell(field[r+1][c+1],PUSHABLE_CH);break;
+                case '-':setCell(field[r+1][c+1],UNIDIRECTIONAL_CH[0]);break;
+                case '|':setCell(field[r+1][c+1],UNIDIRECTIONAL_CH[1]);break;
+                case '.':setCell(field[r+1][c+1],EMPTY_CH);break;
+            }
         }
     }
 }
 int main(){
+    vector<string> levelData;
+    readFromFile(levelData, "level.txt");
     srand(time(0));
-    for(int i = 0; i < 42; i++){
+    int rows = stoi(levelData[0])+2;
+    int cols = stoi(levelData[1])+2;
+    for(int i = 0; i < rows; i++){
         cout << '\n';
     }
-    int rows = 40;
-    int cols = 50;
     Cell** field = new Cell*[rows];
     for (int r = 0; r < rows; r++) {
         field[r] = new Cell[cols];
     }
-    //
-    init(field,rows,cols);
+    initLevelFromData(field, rows, cols, levelData);
     printField(field,rows,cols);
-    while(true){
-        printField(field,rows,cols);
-        stepThroughTime(field, rows, cols);
+    while(br_enemies>0){
+        if(GetAsyncKeyState(VK_SPACE)){
+            printField(field,rows,cols);
+            stepThroughTime(field, rows, cols);
+            Sleep(100);
+        }
     }
-    //
+    printField(field,rows,cols);
     for (int r = 0; r < rows; r++) {
         delete field[r];
     }
     delete[] field;
     field = nullptr; 
-    cin >> rows;
+    cout<<"Victory!"<<endl;
+    Sleep(-1);
 }

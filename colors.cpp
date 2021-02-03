@@ -5,6 +5,7 @@
 #include <time.h>
 #include <cmath>
 #include <vector>
+#include <fstream>
 #define uchar unsigned char
 using namespace std;
 

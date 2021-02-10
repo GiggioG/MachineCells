@@ -13,7 +13,7 @@ const COLORS ROTATOR_COL = BROWN;
 const unsigned char CLONER_CH[4] = {30,16,31,17};
 const COLORS CLONER_COL = GREEN;
 const unsigned char PUSHABLE_CH = '#';
-const unsigned char UNIDIRECTIONAL_CH[2] = {186,205};
+const unsigned char UNIDIRECTIONAL_CH[2] = {205,186};
 const COLORS PUSHABLE_COL = YELLOW;
 const unsigned char EMPTY_CH = '.';
 //

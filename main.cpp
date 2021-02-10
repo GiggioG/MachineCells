@@ -18,7 +18,30 @@ const COLORS PUSHABLE_COL = YELLOW;
 const unsigned char EMPTY_CH = '.';
 //
 int br_enemies=0;
-vector<string> levelData;
+
+struct GameFile{
+    int rows,cols;
+    int min_r,min_c;
+    int max_r,max_c;
+    vector<string> levelData;
+
+    void readFromFile(string path){
+        string tmp;
+        ifstream in_f(path);
+        in_f>> rows >> cols;
+        in_f>> min_r >> min_c;
+        in_f>> max_r >> max_c;
+        getline(in_f,tmp);
+        cout<<tmp;
+        while (getline (in_f, tmp)) {
+                levelData.push_back(tmp);
+        }
+        in_f.close();
+    }
+};
+
+GameFile gameLevel;
+
 struct Cell{
     uchar ch = EMPTY_CH;
     COLORS col = BKG_COL;
@@ -94,6 +117,25 @@ bool push(Cell** field, int r, int c, int d){
     }
     return false;
 }
+
+void move_cursor(Cell** field){
+    int rows=0, cols=0;
+    int new_rows,new_cols;
+    if(GetAsyncKeyState('A')){
+        new_cols=cols-1;
+    }
+    if(GetAsyncKeyState('W')){
+        new_rows=rows-1;
+    }
+    if(GetAsyncKeyState('D')){
+        new_cols=cols+1;
+    }
+    if(GetAsyncKeyState('S')){
+        new_rows=rows+1;
+    }
+    // if()
+}
+
 void stepThroughTime(Cell** field,int rows, int cols){
     //if(!GetAsyncKeyState(VK_SPACE)){return;}
     for(int r = 0; r < rows; r++){
@@ -101,7 +143,7 @@ void stepThroughTime(Cell** field,int rows, int cols){
             field[r][c].touched = false;
         }
     }
-    // 
+    //
     int d;
     uchar cellchar;
     for(int r = 0; r < rows; r++){
@@ -162,14 +204,7 @@ void stepThroughTime(Cell** field,int rows, int cols){
         }
     }
 }
-void readFromFile(vector<string>& levelData, string path){
-    string tmp;
-    ifstream in_f(path);
-    while (getline (in_f, tmp)) {
-        levelData.push_back(tmp);
-    }
-    in_f.close();
-}
+
 void initLevelFromData(Cell** field, int rows, int cols, vector<string>& levelData){
     for(int r = 0; r < rows; r++){
         for(int c = 0; c < cols; c++){
@@ -203,7 +238,7 @@ void initLevelFromData(Cell** field, int rows, int cols, vector<string>& levelDa
 }
 int main(){
     vector<string> levelData;
-    readFromFile(levelData, "level.txt");
+    gameLevel.readFromFile("level.txt");
     srand(time(0));
     int rows = stoi(levelData[0])+2;
     int cols = stoi(levelData[1])+2;
@@ -228,7 +263,7 @@ int main(){
         delete field[r];
     }
     delete[] field;
-    field = nullptr; 
+    field = nullptr;
     cout<<"Victory!"<<endl;
     Sleep(-1);
 }

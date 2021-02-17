@@ -220,56 +220,59 @@ struct GameLevel {
     int max_r,max_c;
     vector<string> levelData;
 
-    void readFromFile(string path){
-        string tmp;
-        ifstream in_f(path);
-        in_f >> rows >> cols;
-        in_f >> min_r >> min_c;
-        in_f >> max_r >> max_c;
-        getline(in_f,tmp);
-        cout<<tmp;
-        while (getline (in_f, tmp)) {
-            levelData.push_back(tmp);
-        }
-        in_f.close();
-    }
-
-    void run(){
-        readFromFile("level.txt");
-        cout << "test1\n";
-        srand(time(0));
-        // int rows = stoi(gameLevel.levelData[0])+2;
-        // int cols = stoi(gameLevel.levelData[1])+2;
-        cout << "test2\n";
-        for(int i = 0; i < rows; i++){
-            cout << '\n';
-        }
-        Cell** field = new Cell*[rows];
-        for (int r = 0; r < rows; r++) {
-            field[r] = new Cell[cols];
-        }
-        cout << "test3\n";
-        initLevelFromData(field, rows, cols, levelData);
-        printField(field,rows,cols);
-        cout << "test4\n";
-        while(br_enemies>0){
-            if(GetAsyncKeyState(VK_SPACE)){
-                printField(field,rows,cols);
-                stepThroughTime(field, rows, cols);
-                Sleep(100);
-            }
-        }
-        cout << "test5\n";
-        printField(field,rows,cols);
-        for (int r = 0; r < rows; r++) {
-            delete field[r];
-        }
-        delete[] field;
-        field = nullptr;
-        cout<<"Victory!"<<endl;
-        Sleep(-1);
-    }
+    void readFromFile(string path);//deklaraciq
+    void run();//deklaraciq
 };
+
+void GameLevel::readFromFile(string path){//definiciq
+    string tmp;
+    ifstream in_f(path);
+    in_f >> rows >> cols;
+    in_f >> min_r >> min_c;
+    in_f >> max_r >> max_c;
+    getline(in_f,tmp);
+    cout<<tmp;
+    while (getline (in_f, tmp)) {
+        levelData.push_back(tmp);
+    }
+    in_f.close();
+}
+
+void GameLevel::run(){//definiciq
+    readFromFile("level.txt");
+    cout << "test1\n";
+    srand(time(0));
+    // int rows = stoi(gameLevel.levelData[0])+2;
+    // int cols = stoi(gameLevel.levelData[1])+2;
+    cout << "test2\n";
+    for(int i = 0; i < rows; i++){
+        cout << '\n';
+    }
+    Cell** field = new Cell*[rows];
+    for (int r = 0; r < rows; r++) {
+        field[r] = new Cell[cols];
+    }
+    cout << "test3\n";
+    initLevelFromData(field, rows, cols, levelData);
+    printField(field,rows,cols);
+    cout << "test4\n";
+    while(br_enemies>0){
+        if(GetAsyncKeyState(VK_SPACE)){
+            printField(field,rows,cols);
+            stepThroughTime(field, rows, cols);
+            Sleep(100);
+        }
+    }
+    cout << "test5\n";
+    printField(field,rows,cols);
+    for (int r = 0; r < rows; r++) {
+        delete field[r];
+    }
+    delete[] field;
+    field = nullptr;
+    cout<<"Victory!"<<endl;
+    Sleep(-1);
+}
 
 int main(){
     GameLevel gameLevel;

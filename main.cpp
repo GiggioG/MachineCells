@@ -24,8 +24,10 @@ struct Cell{
     COLORS col = BKG_COL;
     bool touched = false;
 };
+
 int diffr[4] = {-1,0,1, 0};
 int diffc[4] = { 0,1,0,-1};
+
 COLORS getColor(uchar ch){
     if(ch == MOVER_CH[0]){return MOVER_COL;}
     if(ch == MOVER_CH[1]){return MOVER_COL;}
@@ -44,17 +46,12 @@ COLORS getColor(uchar ch){
     if(ch == CLONER_CH[3]){return CLONER_COL;}
     return BKG_COL;
 }
+
 void setCell(Cell& cell, uchar ch){
     cell.ch = ch;
     cell.col = getColor(ch);
 }
-void printField(Cell** field,int rows, int cols){
-    for(int r = 0; r < rows; r++){
-        for(int c = 0; c < cols; c++){
-            draw_char(field[r][c].ch,r,c,BKG_COL,field[r][c].col);
-        }
-    }
-}
+
 bool push(Cell** field, int r, int c, int d){
     int newr = r+diffr[d], newc = c+diffc[d];
     uchar cellchar = field[r][c].ch;
@@ -113,7 +110,113 @@ void move_cursor(Cell** field){
     // if()
 }
 
-void stepThroughTime(Cell** field,int rows, int cols){
+//times(4,"lopio") -> "lopiolopiolopiolopio"
+string times(int n, string s){
+  string ret = "";
+  for(int i = 0; i < n; i++){
+    ret += s;
+  }
+  return ret;
+}
+
+struct GameLevel {
+int rows,cols;
+    int min_r,min_c;
+    int max_r,max_c;
+    vector<string> levelData;
+    Cell** field;
+
+    void readFromFile(string path);
+    void initLevelFromData();
+    void run();
+    void printField();
+    void stepThroughTime();
+};
+
+void GameLevel::readFromFile(string path){//definiciq
+    string tmp;
+    ifstream in_f(path);
+    in_f >> rows >> cols;
+    in_f >> min_r >> min_c;
+    in_f >> max_r >> max_c;
+    getline(in_f,tmp);
+    cout << tmp;
+    int br=0;
+    levelData.push_back(times(cols+2, "%"));
+    while (getline (in_f, tmp)) {
+        levelData.push_back('%' + tmp + '%');
+    }
+    levelData.push_back(times(cols+2, "%"));
+    
+    in_f.close();
+    rows += 2;
+    cols += 2;
+    // for(int i = 0; i < levelData.size(); i++){
+    //     cout << levelData[i] << '\n';
+    // }
+}
+
+void GameLevel::initLevelFromData(){
+    for(int r = 0; r < rows; r++){
+        for(int c = 0; c < cols; c++){
+            switch(levelData[r][c]){
+                case '^':setCell(field[r][c],MOVER_CH[0]);break;
+                case '>':setCell(field[r][c],MOVER_CH[1]);break;
+                case 'v':setCell(field[r][c],MOVER_CH[2]);break;
+                case '<':setCell(field[r][c],MOVER_CH[3]);break;
+                case '%':setCell(field[r][c],STATIC_CH);break;
+                case 'Q':setCell(field[r][c],ENEMY_CH);br_enemies++;break;
+                case 'p':setCell(field[r][c],ROTATOR_CH[0]);break;
+                case 'q':setCell(field[r][c],ROTATOR_CH[1]);break;
+                case 'M':setCell(field[r][c],CLONER_CH[0]);break;
+                case '}':setCell(field[r][c],CLONER_CH[1]);break;
+                case 'W':setCell(field[r][c],CLONER_CH[2]);break;
+                case '{':setCell(field[r][c],CLONER_CH[3]);break;
+                case '#':setCell(field[r][c],PUSHABLE_CH);break;
+                case '-':setCell(field[r][c],UNIDIRECTIONAL_CH[0]);break;
+                case '|':setCell(field[r][c],UNIDIRECTIONAL_CH[1]);break;
+                case '.':setCell(field[r][c],EMPTY_CH);break;
+            }
+        }
+    }
+}
+
+void GameLevel::run(){//definiciq
+    for(int i = 0; i < rows; i++){
+        cout << '\n';
+    }
+    field = new Cell*[rows];
+    for (int r = 0; r < rows; r++) {
+        field[r] = new Cell[cols];
+    }
+    initLevelFromData();
+    printField();
+    while(br_enemies>0){
+        if(GetAsyncKeyState(VK_SPACE)){
+            printField();
+            stepThroughTime();
+            Sleep(100);
+        }
+    }
+    printField();
+    for (int r = 0; r < rows; r++) {
+        delete field[r];
+    }
+    delete[] field;
+    field = nullptr;
+    cout<<"Victory!"<<endl;
+    Sleep(-1);
+}
+
+void GameLevel::printField(){
+    for(int r = 0; r < rows; r++){
+        for(int c = 0; c < cols; c++){
+            draw_char(field[r][c].ch,r,c,BKG_COL,field[r][c].col);
+        }
+    }
+}
+
+void GameLevel::stepThroughTime(){
     //if(!GetAsyncKeyState(VK_SPACE)){return;}
     for(int r = 0; r < rows; r++){
         for(int c = 0; c < cols; c++){
@@ -182,105 +285,9 @@ void stepThroughTime(Cell** field,int rows, int cols){
     }
 }
 
-void initLevelFromData(Cell** field, int rows, int cols, vector<string>& levelData){
-    for(int r = 0; r < rows; r++){
-        for(int c = 0; c < cols; c++){
-            switch(levelData[r][c]){
-                case '^':setCell(field[r][c],MOVER_CH[0]);break;
-                case '>':setCell(field[r][c],MOVER_CH[1]);break;
-                case 'v':setCell(field[r][c],MOVER_CH[2]);break;
-                case '<':setCell(field[r][c],MOVER_CH[3]);break;
-                case '%':setCell(field[r][c],STATIC_CH);break;
-                case 'Q':setCell(field[r][c],ENEMY_CH);br_enemies++;break;
-                case 'p':setCell(field[r][c],ROTATOR_CH[0]);break;
-                case 'q':setCell(field[r][c],ROTATOR_CH[1]);break;
-                case 'M':setCell(field[r][c],CLONER_CH[0]);break;
-                case '}':setCell(field[r][c],CLONER_CH[1]);break;
-                case 'W':setCell(field[r][c],CLONER_CH[2]);break;
-                case '{':setCell(field[r][c],CLONER_CH[3]);break;
-                case '#':setCell(field[r][c],PUSHABLE_CH);break;
-                case '-':setCell(field[r][c],UNIDIRECTIONAL_CH[0]);break;
-                case '|':setCell(field[r][c],UNIDIRECTIONAL_CH[1]);break;
-                case '.':setCell(field[r][c],EMPTY_CH);break;
-            }
-        }
-    }
-}
-
-//times(4,"lopio") -> "lopiolopiolopiolopio"
-string times(int n, string s){
-  string ret = "";
-  for(int i = 0; i < n; i++){
-    ret += s;
-  }
-  return ret;
-}
-
-
-struct GameLevel {
-    int rows,cols;
-    int min_r,min_c;
-    int max_r,max_c;
-    vector<string> levelData;
-
-    void readFromFile(string path);//deklaraciq
-    void run();//deklaraciq
-};
-
-void GameLevel::readFromFile(string path){//definiciq
-    string tmp;
-    ifstream in_f(path);
-    in_f >> rows >> cols;
-    in_f >> min_r >> min_c;
-    in_f >> max_r >> max_c;
-    getline(in_f,tmp);
-    cout << tmp;
-    int br=0;
-    levelData.push_back(times(cols+2, "%"));
-    while (getline (in_f, tmp)) {
-        levelData.push_back('%' + tmp + '%');
-    }
-    levelData.push_back(times(cols+2, "%"));
-    
-    in_f.close();
-    rows += 2;
-    cols += 2;
-    // for(int i = 0; i < levelData.size(); i++){
-    //     cout << levelData[i] << '\n';
-    // }
-}
-
-void GameLevel::run(){//definiciq
-    for(int i = 0; i < rows; i++){
-        cout << '\n';
-    }
-    Cell** field = new Cell*[rows];
-    for (int r = 0; r < rows; r++) {
-        field[r] = new Cell[cols];
-    }
-    initLevelFromData(field, rows, cols, levelData);
-    printField(field,rows,cols);
-    
-    while(br_enemies>0){
-        if(GetAsyncKeyState(VK_SPACE)){
-            printField(field,rows,cols);
-            stepThroughTime(field, rows, cols);
-            Sleep(100);
-        }
-    }
-    printField(field,rows,cols);
-    for (int r = 0; r < rows; r++) {
-        delete field[r];
-    }
-    delete[] field;
-    field = nullptr;
-    cout<<"Victory!"<<endl;
-    Sleep(-1);
-}
-
 int main(){
     srand(time(0));
     GameLevel gameLevel;
-    readFromFile("level.txt");
+    gameLevel.readFromFile("level.txt");
     gameLevel.run();
 }

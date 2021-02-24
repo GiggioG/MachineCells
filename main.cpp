@@ -185,34 +185,37 @@ void stepThroughTime(Cell** field,int rows, int cols){
 void initLevelFromData(Cell** field, int rows, int cols, vector<string>& levelData){
     for(int r = 0; r < rows; r++){
         for(int c = 0; c < cols; c++){
-            if((r == 0 || r == rows-1) || (c == 0 || c == cols-1)){
-                setCell(field[r][c],STATIC_CH);
-            }
-        }
-    }
-    for(int r = 0; r < rows-2; r++){
-        for(int c = 0; c < cols-2; c++){
-            switch(levelData[r+2][c]){
-                case '^':setCell(field[r+1][c+1],MOVER_CH[0]);break;
-                case '>':setCell(field[r+1][c+1],MOVER_CH[1]);break;
-                case 'v':setCell(field[r+1][c+1],MOVER_CH[2]);break;
-                case '<':setCell(field[r+1][c+1],MOVER_CH[3]);break;
-                case '%':setCell(field[r+1][c+1],STATIC_CH);break;
-                case 'Q':setCell(field[r+1][c+1],ENEMY_CH);br_enemies++;break;
-                case 'p':setCell(field[r+1][c+1],ROTATOR_CH[0]);break;
-                case 'q':setCell(field[r+1][c+1],ROTATOR_CH[1]);break;
-                case 'M':setCell(field[r+1][c+1],CLONER_CH[0]);break;
-                case '}':setCell(field[r+1][c+1],CLONER_CH[1]);break;
-                case 'W':setCell(field[r+1][c+1],CLONER_CH[2]);break;
-                case '{':setCell(field[r+1][c+1],CLONER_CH[3]);break;
-                case '#':setCell(field[r+1][c+1],PUSHABLE_CH);break;
-                case '-':setCell(field[r+1][c+1],UNIDIRECTIONAL_CH[0]);break;
-                case '|':setCell(field[r+1][c+1],UNIDIRECTIONAL_CH[1]);break;
-                case '.':setCell(field[r+1][c+1],EMPTY_CH);break;
+            switch(levelData[r][c]){
+                case '^':setCell(field[r][c],MOVER_CH[0]);break;
+                case '>':setCell(field[r][c],MOVER_CH[1]);break;
+                case 'v':setCell(field[r][c],MOVER_CH[2]);break;
+                case '<':setCell(field[r][c],MOVER_CH[3]);break;
+                case '%':setCell(field[r][c],STATIC_CH);break;
+                case 'Q':setCell(field[r][c],ENEMY_CH);br_enemies++;break;
+                case 'p':setCell(field[r][c],ROTATOR_CH[0]);break;
+                case 'q':setCell(field[r][c],ROTATOR_CH[1]);break;
+                case 'M':setCell(field[r][c],CLONER_CH[0]);break;
+                case '}':setCell(field[r][c],CLONER_CH[1]);break;
+                case 'W':setCell(field[r][c],CLONER_CH[2]);break;
+                case '{':setCell(field[r][c],CLONER_CH[3]);break;
+                case '#':setCell(field[r][c],PUSHABLE_CH);break;
+                case '-':setCell(field[r][c],UNIDIRECTIONAL_CH[0]);break;
+                case '|':setCell(field[r][c],UNIDIRECTIONAL_CH[1]);break;
+                case '.':setCell(field[r][c],EMPTY_CH);break;
             }
         }
     }
 }
+
+//times(4,"lopio") -> "lopiolopiolopiolopio"
+string times(int n, string s){
+  string ret = "";
+  for(int i = 0; i < n; i++){
+    ret += s;
+  }
+  return ret;
+}
+
 
 struct GameLevel {
     int rows,cols;
@@ -231,20 +234,23 @@ void GameLevel::readFromFile(string path){//definiciq
     in_f >> min_r >> min_c;
     in_f >> max_r >> max_c;
     getline(in_f,tmp);
-    cout<<tmp;
+    cout << tmp;
+    int br=0;
+    levelData.push_back(times(cols+2, "%"));
     while (getline (in_f, tmp)) {
-        levelData.push_back(tmp);
+        levelData.push_back('%' + tmp + '%');
     }
+    levelData.push_back(times(cols+2, "%"));
+    
     in_f.close();
+    rows += 2;
+    cols += 2;
+    // for(int i = 0; i < levelData.size(); i++){
+    //     cout << levelData[i] << '\n';
+    // }
 }
 
 void GameLevel::run(){//definiciq
-    readFromFile("level.txt");
-    cout << "test1\n";
-    srand(time(0));
-    // int rows = stoi(gameLevel.levelData[0])+2;
-    // int cols = stoi(gameLevel.levelData[1])+2;
-    cout << "test2\n";
     for(int i = 0; i < rows; i++){
         cout << '\n';
     }
@@ -252,10 +258,9 @@ void GameLevel::run(){//definiciq
     for (int r = 0; r < rows; r++) {
         field[r] = new Cell[cols];
     }
-    cout << "test3\n";
     initLevelFromData(field, rows, cols, levelData);
     printField(field,rows,cols);
-    cout << "test4\n";
+    
     while(br_enemies>0){
         if(GetAsyncKeyState(VK_SPACE)){
             printField(field,rows,cols);
@@ -263,7 +268,6 @@ void GameLevel::run(){//definiciq
             Sleep(100);
         }
     }
-    cout << "test5\n";
     printField(field,rows,cols);
     for (int r = 0; r < rows; r++) {
         delete field[r];
@@ -275,6 +279,8 @@ void GameLevel::run(){//definiciq
 }
 
 int main(){
+    srand(time(0));
     GameLevel gameLevel;
+    readFromFile("level.txt");
     gameLevel.run();
 }

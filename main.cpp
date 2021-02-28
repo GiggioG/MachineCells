@@ -144,9 +144,15 @@ void GameLevel::readFromFile(string path){//definiciq
     int br=0;
     levelData.push_back(times(cols+2, "%"));
     while (getline (in_f, tmp)) {
+        if(tmp.length() != cols){
+            exit(-1);
+        }
         levelData.push_back('%' + tmp + '%');
     }
     levelData.push_back(times(cols+2, "%"));
+    if(levelData.size() != rows+2){
+        exit(-1);
+    }
     
     in_f.close();
     rows += 2;

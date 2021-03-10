@@ -131,6 +131,7 @@ int rows,cols;
     void run();
     void printField();
     void stepThroughTime();
+    void edit();
 };
 
 void GameLevel::readFromFile(string path){//definiciq
@@ -158,8 +159,13 @@ void GameLevel::readFromFile(string path){//definiciq
     }
     
     in_f.close();
+    //walls offset
     rows += 2;
     cols += 2;
+    min_r ++;
+    min_c ++;
+    max_r ++;
+    max_c ++;
     // for(int i = 0; i < levelData.size(); i++){
     //     cout << levelData[i] << '\n';
     // }
@@ -190,6 +196,67 @@ void GameLevel::initLevelFromData(){
     }
 }
 
+void GameLevel::printField(){
+    COLORS fg;
+    COLORS bg;
+    for(int r = 0; r < rows; r++){
+        for(int c = 0; c < cols; c++){
+            if (r >= min_r && r <= max_r && c >= min_c && c <= max_c && field[r][c].ch == EMPTY_CH) {
+                fg = GREY;
+                bg = GREY;
+            } else {
+                fg = BKG_COL;
+                bg = field[r][c].col;
+            }
+            draw_char(field[r][c].ch,r,c,fg,bg);
+        }
+    }
+}
+
+void GameLevel::edit(){
+    int r_cur = min_r, c_cur = min_c;
+    Cell hand;
+    bool handFull = false;
+    while (true) {
+        printField();
+        if (handFull) {
+            draw_char(hand.ch, r_cur, c_cur, PINK, WHITE);
+        } else {
+            draw_char(field[r_cur][c_cur].ch, r_cur, c_cur, field[r_cur][c_cur].col, WHITE);
+        }
+        if (GetAsyncKeyState('W') && (r_cur > min_r)) {
+            r_cur--;
+        }
+        if (GetAsyncKeyState('A') && (c_cur > min_c)) {
+            c_cur--;
+        }
+        if (GetAsyncKeyState('S') && (r_cur < max_r)) {
+            r_cur++;
+        }
+        if (GetAsyncKeyState('D') && (c_cur < max_c)) {
+            c_cur++;
+        }
+        if (GetAsyncKeyState('E')) {
+            if (!handFull) {
+                if (field[r_cur][c_cur].ch != EMPTY_CH) {
+                    hand = field[r_cur][c_cur];
+                    handFull = true;
+                    setCell(field[r_cur][c_cur], EMPTY_CH);
+                }
+            } else {
+                if (field[r_cur][c_cur].ch == EMPTY_CH) {
+                    field[r_cur][c_cur] = hand;
+                    handFull = false;                    
+                }
+            }
+        }
+        if (GetAsyncKeyState('Q') && !handFull) {
+            return;
+        }
+        Sleep(50);
+    }
+}
+
 void GameLevel::run(){//definiciq
     for(int i = 0; i < rows; i++){
         cout << '\n';
@@ -199,6 +266,7 @@ void GameLevel::run(){//definiciq
         field[r] = new Cell[cols];
     }
     initLevelFromData();
+    edit();
     printField();
     while(br_enemies>0){
         if(GetAsyncKeyState(VK_SPACE)){
@@ -215,14 +283,6 @@ void GameLevel::run(){//definiciq
     field = nullptr;
     cout<<"Victory!"<<endl;
     Sleep(-1);
-}
-
-void GameLevel::printField(){
-    for(int r = 0; r < rows; r++){
-        for(int c = 0; c < cols; c++){
-            draw_char(field[r][c].ch,r,c,BKG_COL,field[r][c].col);
-        }
-    }
 }
 
 void GameLevel::stepThroughTime(){

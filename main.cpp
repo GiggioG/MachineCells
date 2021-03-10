@@ -141,16 +141,19 @@ void GameLevel::readFromFile(string path){//definiciq
     in_f >> max_r >> max_c;
     getline(in_f,tmp);
     cout << tmp;
-    int br=0;
+    int nRow = 0;
     levelData.push_back(times(cols+2, "%"));
     while (getline (in_f, tmp)) {
+        nRow++;
         if(tmp.length() != cols){
+            cerr << "Error in " << path << ", row #" << nRow << " of field has wrong size.";
             exit(-1);
         }
         levelData.push_back('%' + tmp + '%');
     }
     levelData.push_back(times(cols+2, "%"));
     if(levelData.size() != rows+2){
+        cerr << "Error in " << path << ", field has wrong number of rows.";
         exit(-1);
     }
     

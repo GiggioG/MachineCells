@@ -120,13 +120,13 @@ string times(int n, string s){
 }
 
 struct GameLevel {
-int rows,cols;
+    int rows,cols;
     int min_r,min_c;
     int max_r,max_c;
     vector<string> levelData;
     Cell** field;
 
-    void readFromFile(string path);
+    bool readFromFile(string path);
     void initLevelFromData();
     void run();
     void printField();
@@ -134,9 +134,12 @@ int rows,cols;
     void edit();
 };
 
-void GameLevel::readFromFile(string path){//definiciq
+bool GameLevel::readFromFile(string path){//definiciq
     string tmp;
     ifstream in_f(path);
+    if (!in_f.good()) {
+        return false;
+    }
     in_f >> rows >> cols;
     in_f >> min_r >> min_c;
     in_f >> max_r >> max_c;
@@ -146,7 +149,7 @@ void GameLevel::readFromFile(string path){//definiciq
     levelData.push_back(times(cols+2, "%"));
     while (getline (in_f, tmp)) {
         nRow++;
-        if(tmp.length() != cols){
+        if (tmp.length() != cols) {
             cerr << "Error in " << path << ", row #" << nRow << " of field has wrong size.";
             exit(-1);
         }
@@ -169,6 +172,7 @@ void GameLevel::readFromFile(string path){//definiciq
     // for(int i = 0; i < levelData.size(); i++){
     //     cout << levelData[i] << '\n';
     // }
+    return true;
 }
 
 void GameLevel::initLevelFromData(){
@@ -258,6 +262,7 @@ void GameLevel::edit(){
 }
 
 void GameLevel::run(){//definiciq
+    system("cls");
     for(int i = 0; i < rows; i++){
         cout << '\n';
     }
@@ -282,7 +287,8 @@ void GameLevel::run(){//definiciq
     delete[] field;
     field = nullptr;
     cout<<"Victory!"<<endl;
-    Sleep(-1);
+    system("pause");
+    //Sleep(-1);
 }
 
 void GameLevel::stepThroughTime(){
@@ -356,7 +362,14 @@ void GameLevel::stepThroughTime(){
 
 int main(){
     srand(time(0));
-    GameLevel gameLevel;
-    gameLevel.readFromFile("level.txt");
-    gameLevel.run();
+
+    for (int i = 1; true; i++) {
+        GameLevel gameLevel;
+        if (!gameLevel.readFromFile(string("level-") + (char)(i+'0') + ".txt")) {
+            cout << "CONGRATULATIONS! YOU BEAT THE GAME!\n";
+            system("pause");
+            return 0;
+        }
+        gameLevel.run();
+    }
 }

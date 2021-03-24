@@ -25,6 +25,26 @@ const COLORS BLINK_BG_2 = BLACK;
 const string VICTORY_MESSAGE = " > > > Victory < < < ";
 const string GG_MESSAGE = "CONGRATULATIONS! YOU BEAT THE GAME!";
 //
+
+
+const unsigned char PUSHABLE_CH_LEGEND = '#';
+const unsigned char MOVER_CH_LEGEND_0 = '^';
+const unsigned char MOVER_CH_LEGEND_1 = '>';
+const unsigned char MOVER_CH_LEGEND_2 = 'v';
+const unsigned char MOVER_CH_LEGEND_3 = '<';
+const unsigned char STATIC_CH_LEGEND = '%';
+const unsigned char ENEMY_CH_LEGEND = 'Q';
+const unsigned char ROTATOR_CH_LEGEND_0 = 'p';
+const unsigned char ROTATOR_CH_LEGEND_1 = 'q';
+const unsigned char CLONER_CH_LEGEND_0 = 'M';
+const unsigned char CLONER_CH_LEGEND_1 = '}';
+const unsigned char CLONER_CH_LEGEND_2 = 'W';
+const unsigned char CLONER_CH_LEGEND_3 = '{';
+const unsigned char UNIDIRECTIONAL_CH_LEGEND_0 = '-';
+const unsigned char UNIDIRECTIONAL_CH_LEGEND_1 = '|';
+const unsigned char EMPTY_CH_LEGEND = '.';
+
+
 int br_enemies=0;
 
 struct Cell{
@@ -187,22 +207,22 @@ void GameLevel::initLevelFromData(){
     for(int r = 0; r < rows; r++){
         for(int c = 0; c < cols; c++){
             switch(levelData[r][c]){
-                case '^':setCell(field[r][c],MOVER_CH[0]);break;
-                case '>':setCell(field[r][c],MOVER_CH[1]);break;
-                case 'v':setCell(field[r][c],MOVER_CH[2]);break;
-                case '<':setCell(field[r][c],MOVER_CH[3]);break;
-                case '%':setCell(field[r][c],STATIC_CH);break;
-                case 'Q':setCell(field[r][c],ENEMY_CH);br_enemies++;break;
-                case 'p':setCell(field[r][c],ROTATOR_CH[0]);break;
-                case 'q':setCell(field[r][c],ROTATOR_CH[1]);break;
-                case 'M':setCell(field[r][c],CLONER_CH[0]);break;
-                case '}':setCell(field[r][c],CLONER_CH[1]);break;
-                case 'W':setCell(field[r][c],CLONER_CH[2]);break;
-                case '{':setCell(field[r][c],CLONER_CH[3]);break;
-                case '#':setCell(field[r][c],PUSHABLE_CH);break;
-                case '-':setCell(field[r][c],UNIDIRECTIONAL_CH[0]);break;
-                case '|':setCell(field[r][c],UNIDIRECTIONAL_CH[1]);break;
-                case '.':setCell(field[r][c],EMPTY_CH);break;
+                case STATIC_CH_LEGEND:setCell(field[r][c],STATIC_CH);break;
+                case ENEMY_CH_LEGEND:setCell(field[r][c],ENEMY_CH);br_enemies++;break;
+                case MOVER_CH_LEGEND_0:setCell(field[r][c],MOVER_CH[0]);break;
+                case MOVER_CH_LEGEND_1:setCell(field[r][c],MOVER_CH[1]);break;
+                case MOVER_CH_LEGEND_2:setCell(field[r][c],MOVER_CH[2]);break;
+                case MOVER_CH_LEGEND_3:setCell(field[r][c],MOVER_CH[3]);break;
+                case ROTATOR_CH_LEGEND_0:setCell(field[r][c],ROTATOR_CH[0]);break;
+                case ROTATOR_CH_LEGEND_1:setCell(field[r][c],ROTATOR_CH[1]);break;
+                case CLONER_CH_LEGEND_0:setCell(field[r][c],CLONER_CH[0]);break;
+                case CLONER_CH_LEGEND_1:setCell(field[r][c],CLONER_CH[1]);break;
+                case CLONER_CH_LEGEND_2:setCell(field[r][c],CLONER_CH[2]);break;
+                case CLONER_CH_LEGEND_3:setCell(field[r][c],CLONER_CH[3]);break;
+                case PUSHABLE_CH_LEGEND:setCell(field[r][c],PUSHABLE_CH);break;
+                case UNIDIRECTIONAL_CH_LEGEND_0:setCell(field[r][c],UNIDIRECTIONAL_CH[0]);break;
+                case UNIDIRECTIONAL_CH_LEGEND_1:setCell(field[r][c],UNIDIRECTIONAL_CH[1]);break;
+                case EMPTY_CH_LEGEND:setCell(field[r][c],EMPTY_CH);break;
             }
         }
     }

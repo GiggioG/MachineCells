@@ -6,6 +6,7 @@
 #include <cmath>
 #include <vector>
 #include <fstream>
+#include <conio.h>
 #define uchar unsigned char
 using namespace std;
 

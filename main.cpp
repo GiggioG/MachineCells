@@ -16,6 +16,14 @@ const unsigned char PUSHABLE_CH = '#';
 const unsigned char UNIDIRECTIONAL_CH[2] = {205,186};
 const COLORS PUSHABLE_COL = YELLOW;
 const unsigned char EMPTY_CH = '.';
+const COLORS CURSOR_FG_COL = PINK;
+const COLORS CURSOR_BG_COL = WHITE;
+const COLORS BLINK_FG_1 = RED;
+const COLORS BLINK_BG_1 = WHITE;
+const COLORS BLINK_FG_2 = BLUE;
+const COLORS BLINK_BG_2 = BLACK;
+const string VICTORY_MESSAGE = " > > > Victory < < < ";
+const string GG_MESSAGE = "CONGRATULATIONS! YOU BEAT THE GAME!";
 //
 int br_enemies=0;
 
@@ -224,9 +232,9 @@ void GameLevel::edit(){
     while (true) {
         printField();
         if (handFull) {
-            draw_char(hand.ch, r_cur, c_cur, PINK, WHITE);
+            draw_char(hand.ch, r_cur, c_cur, CURSOR_FG_COL, CURSOR_BG_COL);
         } else {
-            draw_char(field[r_cur][c_cur].ch, r_cur, c_cur, field[r_cur][c_cur].col, WHITE);
+            draw_char(field[r_cur][c_cur].ch, r_cur, c_cur, field[r_cur][c_cur].col, CURSOR_BG_COL);
         }
         if (GetAsyncKeyState('W') && (r_cur > min_r)) {
             r_cur--;
@@ -261,6 +269,36 @@ void GameLevel::edit(){
     }
 }
 
+bool blinkMessage (string msg, int row, int col) {
+    const int BLINK_PERIOD = 1000;
+    const int SLEEP_PERIOD = 250;
+
+    while (_kbhit()) {
+        getch();
+    }
+
+    bool variant = false;
+    while (true) {
+        for (int i = 0; i < msg.length(); i++) {
+            if (variant) {
+                draw_char(msg[i], row, col+i, BLINK_FG_1, BLINK_BG_1);
+            } else {
+                draw_char(msg[i], row, col+i, BLINK_FG_2, BLINK_BG_2);
+            }
+        }
+        variant = !variant;
+        for (int totalSleep = 0; totalSleep < BLINK_PERIOD; totalSleep += SLEEP_PERIOD) {
+            Sleep(SLEEP_PERIOD);
+            if (GetAsyncKeyState('Q')) {
+                return false;
+            }
+            if (_kbhit()) {
+                return true;
+            }
+        }
+    }
+}
+
 void GameLevel::run(){//definiciq
     system("cls");
     for(int i = 0; i < rows; i++){
@@ -286,9 +324,9 @@ void GameLevel::run(){//definiciq
     }
     delete[] field;
     field = nullptr;
-    cout<<"Victory!"<<endl;
-    system("pause");
-    //Sleep(-1);
+    if(!blinkMessage(VICTORY_MESSAGE, rows/2, 0)){
+        exit(0);
+    }
 }
 
 void GameLevel::stepThroughTime(){
@@ -362,14 +400,16 @@ void GameLevel::stepThroughTime(){
 
 int main(){
     srand(time(0));
-
     for (int i = 1; true; i++) {
         GameLevel gameLevel;
         if (!gameLevel.readFromFile(string("level-") + (char)(i+'0') + ".txt")) {
-            cout << "CONGRATULATIONS! YOU BEAT THE GAME!\n";
-            system("pause");
-            return 0;
+            blinkMessage(GG_MESSAGE, 7, 7);
+            break;
         }
+        Sleep(100);
         gameLevel.run();
+        Sleep(100);
     }
+    Sleep(100);
+    return 0;
 }

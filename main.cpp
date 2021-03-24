@@ -24,8 +24,8 @@ const COLORS BLINK_FG_2 = BLUE;
 const COLORS BLINK_BG_2 = BLACK;
 const string VICTORY_MESSAGE = " > > > Victory < < < ";
 const string GG_MESSAGE = "CONGRATULATIONS! YOU BEAT THE GAME!";
+const int BLINK_PERIOD = 1000;
 //
-
 
 const unsigned char PUSHABLE_CH_LEGEND = '#';
 const unsigned char MOVER_CH_LEGEND_0 = '^';
@@ -43,9 +43,6 @@ const unsigned char CLONER_CH_LEGEND_3 = '{';
 const unsigned char UNIDIRECTIONAL_CH_LEGEND_0 = '-';
 const unsigned char UNIDIRECTIONAL_CH_LEGEND_1 = '|';
 const unsigned char EMPTY_CH_LEGEND = '.';
-
-
-int br_enemies=0;
 
 struct Cell{
     uchar ch = EMPTY_CH;
@@ -80,7 +77,38 @@ void setCell(Cell& cell, uchar ch){
     cell.col = getColor(ch);
 }
 
-bool push(Cell** field, int r, int c, int d){
+//times(4,"lopio") -> "lopiolopiolopiolopio"
+string times(int n, string s){
+  string ret = "";
+  for(int i = 0; i < n; i++){
+    ret += s;
+  }
+  return ret;
+}
+
+struct GameLevel {
+    int rows,cols;
+    int min_r,min_c;
+    int max_r,max_c;
+    vector<string> levelData;
+    Cell** field;
+    int br_enemies = 0;
+    Cell** field_copy;
+    int br_enemies_copy = 0;
+
+    bool push(int r, int c, int d);
+    bool readFromFile(string path);
+    void initLevelFromData();
+    void run();
+    void printField();
+    void stepThroughTime();
+    void edit();
+    void copyField();
+    void deleteField(Cell**& f);
+    void resetFieldFromCopy();
+};
+
+bool GameLevel::push(int r, int c, int d){
     int newr = r+diffr[d], newc = c+diffc[d];
     uchar cellchar = field[r][c].ch;
     if(cellchar == STATIC_CH){return false;}
@@ -101,7 +129,7 @@ bool push(Cell** field, int r, int c, int d){
         (cellchar == CLONER_CH[2]) || (cellchar == CLONER_CH[0]) ||
         (cellchar == ROTATOR_CH[0]) || (cellchar == ROTATOR_CH[1])
     ){
-        if(!push(field,newr,newc,d)){return false;}
+        if(!push(newr,newc,d)){return false;}
         setCell(field[newr][newc],cellchar);
         //field[newr][newc].touched = true;
         setCell(field[r][c],EMPTY_CH);
@@ -112,55 +140,13 @@ bool push(Cell** field, int r, int c, int d){
     if((cellchar == UNIDIRECTIONAL_CH[0]) || (cellchar == UNIDIRECTIONAL_CH[1])){
         if(((d == 0) || (d == 2)) && (cellchar == UNIDIRECTIONAL_CH[0])){return false;}
         if(((d == 1) || (d == 3)) && (cellchar == UNIDIRECTIONAL_CH[1])){return false;}
-        if(!push(field,newr,newc,d)){return false;}
+        if(!push(newr,newc,d)){return false;}
         setCell(field[newr][newc],cellchar);
         setCell(field[r][c],EMPTY_CH);
         return true;
     }
     return false;
 }
-
-void move_cursor(Cell** field){
-    int rows=0, cols=0;
-    int new_rows,new_cols;
-    if(GetAsyncKeyState('A')){
-        new_cols=cols-1;
-    }
-    if(GetAsyncKeyState('W')){
-        new_rows=rows-1;
-    }
-    if(GetAsyncKeyState('D')){
-        new_cols=cols+1;
-    }
-    if(GetAsyncKeyState('S')){
-        new_rows=rows+1;
-    }
-    // if()
-}
-
-//times(4,"lopio") -> "lopiolopiolopiolopio"
-string times(int n, string s){
-  string ret = "";
-  for(int i = 0; i < n; i++){
-    ret += s;
-  }
-  return ret;
-}
-
-struct GameLevel {
-    int rows,cols;
-    int min_r,min_c;
-    int max_r,max_c;
-    vector<string> levelData;
-    Cell** field;
-
-    bool readFromFile(string path);
-    void initLevelFromData();
-    void run();
-    void printField();
-    void stepThroughTime();
-    void edit();
-};
 
 bool GameLevel::readFromFile(string path){//definiciq
     string tmp;
@@ -290,8 +276,7 @@ void GameLevel::edit(){
 }
 
 bool blinkMessage (string msg, int row, int col) {
-    const int BLINK_PERIOD = 1000;
-    const int SLEEP_PERIOD = 250;
+    const int SLEEP_PERIOD = 100; // see https://www.nngroup.com/articles/response-times-3-important-limits/
 
     while (_kbhit()) {
         getch();
@@ -319,6 +304,34 @@ bool blinkMessage (string msg, int row, int col) {
     }
 }
 
+void GameLevel::copyField(){
+    field_copy = new Cell*[rows];
+    for (int r = 0; r < rows; r++) {
+        field_copy[r] = new Cell[cols];
+        for (int c = 0; c < cols; c++){
+            field_copy[r][c] = field[r][c];
+        }
+    }
+    br_enemies_copy = br_enemies;
+}
+
+void GameLevel::deleteField(Cell**& f) {
+    for (int r = 0; r < rows; r++) {
+        delete[] f[r];
+    }
+    delete[] f;
+    f = nullptr;
+}
+
+void GameLevel::resetFieldFromCopy(){
+    for (int r = 0; r < rows; r++) {
+        for (int c = 0; c < cols; c++){
+            field[r][c] = field_copy[r][c];
+        }
+    }
+    br_enemies = br_enemies_copy;
+}
+
 void GameLevel::run(){//definiciq
     system("cls");
     for(int i = 0; i < rows; i++){
@@ -329,21 +342,27 @@ void GameLevel::run(){//definiciq
         field[r] = new Cell[cols];
     }
     initLevelFromData();
-    edit();
-    printField();
-    while(br_enemies>0){
-        if(GetAsyncKeyState(VK_SPACE)){
-            printField();
-            stepThroughTime();
-            Sleep(100);
+    while (br_enemies>0) {
+        edit(); // <-----
+        copyField();
+        
+        printField();
+        while(br_enemies>0){
+            if(GetAsyncKeyState(VK_SPACE)){
+                printField();
+                stepThroughTime();
+                Sleep(100);
+            }
+            if(GetAsyncKeyState('R')){
+                //reset level
+                resetFieldFromCopy();
+                break;
+            }
         }
     }
     printField();
-    for (int r = 0; r < rows; r++) {
-        delete field[r];
-    }
-    delete[] field;
-    field = nullptr;
+    deleteField(field);
+    deleteField(field_copy);
     if(!blinkMessage(VICTORY_MESSAGE, rows/2, 0)){
         exit(0);
     }
@@ -368,7 +387,7 @@ void GameLevel::stepThroughTime(){
                 if(cellchar == MOVER_CH[1]){d = 1;}
                 if(cellchar == MOVER_CH[2]){d = 2;}
                 if(cellchar == MOVER_CH[3]){d = 3;}
-                field[r+diffr[d]][c+diffc[d]].touched = push(field,r,c,d);
+                field[r+diffr[d]][c+diffc[d]].touched = push(r,c,d);
             }
             if((cellchar == CLONER_CH[0]) || (cellchar == CLONER_CH[1]) || (cellchar == CLONER_CH[2]) || (cellchar == CLONER_CH[3])){
                 if(cellchar == CLONER_CH[0]){d = 0;}
@@ -376,7 +395,7 @@ void GameLevel::stepThroughTime(){
                 if(cellchar == CLONER_CH[2]){d = 2;}
                 if(cellchar == CLONER_CH[3]){d = 3;}
                 if(field[r-diffr[d]][c-diffc[d]].ch == EMPTY_CH){continue;}
-                field[r][c].touched = push(field,r+diffr[d],c+diffc[d],d);
+                field[r][c].touched = push(r+diffr[d],c+diffc[d],d);
                 if(field[r][c].touched){
                     setCell(field[r+diffr[d]][c+diffc[d]], field[r-diffr[d]][c-diffc[d]].ch);
                 }

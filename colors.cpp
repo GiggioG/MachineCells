@@ -10,6 +10,11 @@
 #define uchar unsigned char
 using namespace std;
 
+// CONSOLE_SCREEN_BUFFER_INFO sbInfo;
+// GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &sbInfo);
+// int availableColumns = sbInfo.dwSize.X;
+// int availableRows = sbInfo.dwSize.Y;
+
 const int MAP_ROWS=80;
 const int MAP_COLS=100;
 
@@ -37,7 +42,7 @@ enum COLORS {
     PINK = FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY,
     WHITE =  FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY
 };
-COLORS BKG_COL = BLACK;
+COLORS BKG_COL = GREEN;
 
 
 void draw_char(uchar ch, int y, int x, COLORS foreground_color, COLORS background_color) {
@@ -49,7 +54,6 @@ void draw_char(uchar ch, int y, int x, COLORS foreground_color, COLORS backgroun
     COORD buf_coord = {0, 0};
     SMALL_RECT screen_pos = {x, y, x+1, y+1};
     ::WriteConsoleOutput(hConsoleOutput, &ch_info, buf_size, buf_coord, &screen_pos);
-
 }
 
 void clear_screen() {

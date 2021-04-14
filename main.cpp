@@ -95,7 +95,9 @@ struct GameLevel {
     int br_enemies = 0;
     Cell** field_copy;
     int br_enemies_copy = 0;
+    int rOff, cOff;
 
+    void drawChar(uchar ch, int y, int x, COLORS foreground_color, COLORS background_color);
     bool push(int r, int c, int d);
     bool readFromFile(string path);
     void initLevelFromData();
@@ -106,7 +108,13 @@ struct GameLevel {
     void copyField();
     void deleteField(Cell**& f);
     void resetFieldFromCopy();
+    bool blinkMessage(string msg);
 };
+
+
+void GameLevel::drawChar(uchar ch, int y, int x, COLORS foreground_color, COLORS background_color) {
+    draw_char(ch, y + rOff, x + cOff, foreground_color, background_color);
+}
 
 bool GameLevel::push(int r, int c, int d){
     int newr = r+diffr[d], newc = c+diffc[d];
@@ -157,6 +165,8 @@ bool GameLevel::readFromFile(string path){//definiciq
     in_f >> rows >> cols;
     in_f >> min_r >> min_c;
     in_f >> max_r >> max_c;
+    rOff = (MAP_ROWS - rows) / 3;
+    cOff = (MAP_COLS - cols) / 3;
     getline(in_f,tmp);
     cout << tmp;
     int nRow = 0;
@@ -226,7 +236,7 @@ void GameLevel::printField(){
                 fg = BKG_COL;
                 bg = field[r][c].col;
             }
-            draw_char(field[r][c].ch,r,c,fg,bg);
+            drawChar(field[r][c].ch, r, c, fg, bg);
         }
     }
 }
@@ -238,9 +248,9 @@ void GameLevel::edit(){
     while (true) {
         printField();
         if (handFull) {
-            draw_char(hand.ch, r_cur, c_cur, CURSOR_FG_COL, CURSOR_BG_COL);
+            drawChar(hand.ch, r_cur, c_cur, CURSOR_FG_COL, CURSOR_BG_COL);
         } else {
-            draw_char(field[r_cur][c_cur].ch, r_cur, c_cur, field[r_cur][c_cur].col, CURSOR_BG_COL);
+            drawChar(field[r_cur][c_cur].ch, r_cur, c_cur, field[r_cur][c_cur].col, CURSOR_BG_COL);
         }
         if (GetAsyncKeyState('W') && (r_cur > min_r)) {
             r_cur--;
@@ -275,20 +285,33 @@ void GameLevel::edit(){
     }
 }
 
-bool blinkMessage (string msg, int row, int col) {
+bool GameLevel::blinkMessage(string msg) {
     const int SLEEP_PERIOD = 100; // see https://www.nngroup.com/articles/response-times-3-important-limits/
 
     while (_kbhit()) {
         getch();
     }
 
+    /**
+        ___________________
+       |   (rOff, cOff)
+       |   @____
+       |   |    | 
+       |  VVVVVVVV
+       |   |____|
+       |___________________ 
+    */
+
+    int row = rOff + rows/2;
+    int col = cOff + (cols - msg.length())/2;
+
     bool variant = false;
     while (true) {
         for (int i = 0; i < msg.length(); i++) {
             if (variant) {
-                draw_char(msg[i], row, col+i, BLINK_FG_1, BLINK_BG_1);
+                draw_char(msg[i], row, col + i, BLINK_FG_1, BLINK_BG_1);
             } else {
-                draw_char(msg[i], row, col+i, BLINK_FG_2, BLINK_BG_2);
+                draw_char(msg[i], row, col + i, BLINK_FG_2, BLINK_BG_2);
             }
         }
         variant = !variant;
@@ -363,7 +386,7 @@ void GameLevel::run(){//definiciq
     printField();
     deleteField(field);
     deleteField(field_copy);
-    if(!blinkMessage(VICTORY_MESSAGE, rows/2, 0)){
+    if(!blinkMessage(VICTORY_MESSAGE)){
         exit(0);
     }
 }
@@ -442,7 +465,7 @@ int main(){
     for (int i = 1; true; i++) {
         GameLevel gameLevel;
         if (!gameLevel.readFromFile(string("level-") + (char)(i+'0') + ".txt")) {
-            blinkMessage(GG_MESSAGE, 7, 7);
+            gameLevel.blinkMessage(GG_MESSAGE);
             break;
         }
         Sleep(100);

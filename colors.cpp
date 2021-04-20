@@ -10,18 +10,13 @@
 #define uchar unsigned char
 using namespace std;
 
-// CONSOLE_SCREEN_BUFFER_INFO sbInfo;
-// GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &sbInfo);
-// int availableColumns = sbInfo.dwSize.X;
-// int availableRows = sbInfo.dwSize.Y;
-
-const int MAP_ROWS=80;
-const int MAP_COLS=100;
-
+int MAP_ROWS=80;
+int MAP_COLS=100;
 
 HANDLE hConsoleOutput = ::GetStdHandle(STD_OUTPUT_HANDLE);
 COORD screen_buf = {MAP_ROWS , MAP_COLS};
-CHAR_INFO blank_screen[MAP_ROWS * MAP_COLS] = {0};
+// CHAR_INFO blank_screen[MAP_ROWS * MAP_COLS] = {0}; - doesn't work with now not-const variables
+CHAR_INFO* blank_screen = new CHAR_INFO[MAP_ROWS * MAP_COLS]();
 
 enum COLORS {
     BLACK = 0,
@@ -62,12 +57,24 @@ void clear_screen() {
     ::WriteConsoleOutput(hConsoleOutput, blank_screen, screen_buf, buf_coord, &screen_pos);
 }
 
-
-
 void set_background() {
     for (int i = 0; i < screen_buf.X; i++) {
         for (int j = 0; j < screen_buf.Y; j++) {
              draw_char(' ', i, j, WHITE, BKG_COL);
         }
     }
+}
+
+int colorsInit(){
+    CONSOLE_SCREEN_BUFFER_INFO sbInfo;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &sbInfo);
+    int availableColumns = sbInfo.dwSize.X;
+    int availableRows = sbInfo.dwSize.Y;
+    MAP_COLS = availableColumns;
+    //update dependent on them variables
+    screen_buf = {MAP_ROWS , MAP_COLS};
+    delete[] blank_screen; // cince it's an array, it needs to be deleted and created again
+    blank_screen = new CHAR_INFO[MAP_ROWS * MAP_COLS]();
+    //return 0 for ok
+    return 0;
 }

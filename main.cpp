@@ -166,7 +166,7 @@ bool GameLevel::readFromFile(string path){//definiciq
     in_f >> min_r >> min_c;
     in_f >> max_r >> max_c;
     rOff = (MAP_ROWS - rows) / 3;
-    cOff = (MAP_COLS - cols) / 3;
+    cOff = (MAP_COLS - cols) / 2;
     getline(in_f,tmp);
     cout << tmp;
     int nRow = 0;
@@ -461,6 +461,8 @@ void GameLevel::stepThroughTime(){
 }
 
 int main(){
+    int colorsInitError = colorsInit();
+    if(colorsInitError != 0){return colorsInitError;}
     srand(time(0));
     for (int i = 1; true; i++) {
         GameLevel gameLevel;

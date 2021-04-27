@@ -135,73 +135,89 @@ struct GameLevel {
 typedef const char CharMap[3][4];
 CharMap MOVER_UP_CMP = {
     " ^ ",
-    "/_\\",
-    "^^^"
+    "/ \\",
+    "\xc4\xc4\xc4"
 };
 CharMap MOVER_RIGHT_CMP = {
-    ">\\ ",
-    ">|>",
-    ">/ "
+    "\xb3\\ ",
+    "\xb3 >",
+    "\xb3/ "
 };
 CharMap MOVER_DOWN_CMP = {
-    "vvv",
-    "\\-/",
+    "\xc4\xc4\xc4",
+    "\\ /",
     " v "
 };
 CharMap MOVER_LEFT_CMP = {
-    " /<",
-    "<|<",
-    " \\<"
+    " /\xb3",
+    "< \xb3",
+    " \\\xb3"
 };
 CharMap PUSHABLE_CMP = {
-    "+-+",
-    "| |",
-    "+-+"
+    " \xba ",
+    "\xcd#\xcd",
+    " \xba "
 };
 CharMap ENEMY_CMP = {
-    ". .",
-    " _ ",
-    "/ \\"
+    // "\x95 \xa2",
+    // "   ",
+    // " \xef "
+    // ==--OR--==
+    // "\x95 \xa2",
+    // " _ ",
+    // "/ \\"
+    // ==--OR--==
+    // "\x95 \xa2",
+    // " - ",
+    // "/ \\"
+    // ==--OR--==
+    // ". .",
+    // " - ",
+    // "/ \\"
+    // ==--OR--==
+    // ". .",
+    // " _ ",
+    // "/ \\"
 };
 CharMap ROTATOR_CLCW_CMP = {
-    "/-\\",
-    "| v",
-    "\\-/"
+    "\xda\xc4\xbf",
+    "\xb3 v",
+    "\xc0\xc4\xd9"
 };
 CharMap ROTATOR_CTCLCW_CMP = {
-    "/-\\",
-    "v |",
-    "\\-/"
+    "\xda\xc4\xbf",
+    "v \xb3",
+    "\xc0\xc4\xd9"
 };
 CharMap CLONER_UP_CMP = {
-    "/^\\",
-    " | ",
+    " ^ ",
+    "/\xb3\\",
     " \xc1 "
 };
 CharMap CLONER_RIGHT_CMP = {
-    "  \\",
-    "\xc3->",
-    "  /"
+    " \\ ",
+    "\xc3\xc4>",
+    " / "
 };
 CharMap CLONER_DOWN_CMP = {
     " \xc2 ",
-    " | ",
-    "\\v/"
+    "\\\xb3/",
+    " v "
 };
 CharMap CLONER_LEFT_CMP = {
-    "/  ",
-    "<-\xb4",
-    "\\  "
+    " / ",
+    "<\xc4\xb4",
+    " \\ "
 };
 CharMap UNIDIRECTIONAL_HORZ_CMP = {
-    "---",
-    "\xcd\xcd\xcd",
-    "---"
+    "\xc4\xc4\xc4",
+    "   ",
+    "\xc4\xc4\xc4"
 };
 CharMap UNIDIRECTIONAL_VERT_CMP = {
-    "|\xba|",
-    "|\xba|",
-    "|\xba|"
+    "\xb3 \xb3",
+    "\xb3 \xb3",
+    "\xb3 \xb3"
 };
 CharMap STATIC_CMP = {
     "\xda\xc4\xbf",

@@ -5,6 +5,7 @@ This is a console game that these people made in programming class:
 * [Sofi](https://github.com/SofiaStanimirova)
 * [Sten1ee](https://github.com/sten1ee)
 * [Me](https://github.com/GiggioG)
+
 It's a game about arranging blocks in the right way, and then releasing them to destroy the red blocks.
 ## Building and Running the game
 When running the game for the first time, you need to compile. This is done with the `gcc` compiler. By using the `build.bat` script, the game should compile and run automatically. Then, every time you want to play the game, you can run `run.bat`, and it will start the game. Any time you mmodify the source code, you need to `build` again. When you add or modify levels, you don't need to `build` again.

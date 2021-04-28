@@ -159,25 +159,9 @@ CharMap PUSHABLE_CMP = {
     " \xba "
 };
 CharMap ENEMY_CMP = {
-    // "\x95 \xa2",
-    // "   ",
-    // " \xef "
-    // ==--OR--==
-    // "\x95 \xa2",
-    // " _ ",
-    // "/ \\"
-    // ==--OR--==
-    // "\x95 \xa2",
-    // " - ",
-    // "/ \\"
-    // ==--OR--==
-    // ". .",
-    // " - ",
-    // "/ \\"
-    // ==--OR--==
-    // ". .",
-    // " _ ",
-    // "/ \\"
+    ". .",
+    " - ",
+    "/ \\"
 };
 CharMap ROTATOR_CLCW_CMP = {
     "\xda\xc4\xbf",
@@ -541,7 +525,7 @@ void GameLevel::run(){//definiciq
         
         printField();
         while(br_enemies>0){
-            if(GetAsyncKeyState(VK_SPACE)){
+            if(!GetAsyncKeyState(VK_SPACE)){
                 printField();
                 stepThroughTime();
                 Sleep(100);

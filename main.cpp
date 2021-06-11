@@ -535,6 +535,10 @@ void GameLevel::run(){//definiciq
                 resetFieldFromCopy();
                 break;
             }
+            if(GetAsyncKeyState('S')){
+                br_enemies = 0;
+                break;
+            }
         }
     }
     printField();

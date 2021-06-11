@@ -320,6 +320,9 @@ bool GameLevel::readFromFile(string path){//definiciq
     int nRow = 0;
     levelData.push_back(times(cols+2, "%"));
     while (getline (in_f, tmp)) {
+        if((tmp.length() > 0) && (tmp[0] == '*')){
+            continue;
+	}
         nRow++;
         if (tmp.length() != cols) {
             cerr << "Error in " << path << ", row #" << nRow << " of field has wrong size.";
@@ -624,7 +627,7 @@ int main(){
     srand(time(0));
     for (int i = 1; true; i++) {
         GameLevel gameLevel;
-        if (!gameLevel.readFromFile(string("level-") + (char)(i+'0') + ".txt")) {
+        if (!gameLevel.readFromFile(string("levels\\level-") + (char)(i+'0') + ".txt")) {
             gameLevel.blinkMessage(GG_MESSAGE);
             break;
         }
